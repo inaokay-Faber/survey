@@ -56,3 +56,4 @@ MCNの構造を以下に示す。
 
 ### 関連研究
 - An Introduction to Neural Information Retrieval (https://www.microsoft.com/en-us/research/publication/introduction-neural-information-retrieval)
+- Alex Beutel, Paul Covington, Sagar Jain, Can Xu, Jia Li, Vince Gatto, and Ed H. Chi. Latent Cross: Making Use of Context in Recurrent Recommender Systems. In Proceedings of the Eleventh ACM International Conference on Web Search and Data Mining (WSDM ’18), 2018.

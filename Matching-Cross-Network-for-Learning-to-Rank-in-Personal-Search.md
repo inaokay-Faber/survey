@@ -82,6 +82,52 @@ Gmailクエリは平均して6個、Driveクエリは5個の候補文書があ�
 データはPosition Bias（より上に位置するものがクリックされやすい）を含むので、以下の研究で提案されている補正手法を用いて緩和させる。  
 Xuanhui Wang, Michael Bendersky, Donald Metzler, and Marc Najork. Learning to rank with selection bias in personal search. In ACM Conference on Research and Development in Information Retrieval (SIGIR), pp. 115–124, 2016.
 
+#### 評価尺度
+オフライン評価にはWeighted Mean Reciprocal Rank(WMRR)を用いる。オンライン評価にはClick-Through Rate(CTR), Average Clicked Position(ACP)を用いる。WMRR, CTRは大きい方が良く、ACPは小さい方が良い尺度である。
+それぞれの詳細は論文を参照。
+
+#### オフライン実験
+以下の手法を比較する。
+
+- ベースライン：はじめに全ての素性を連結し、3つの全結合層を持つニューラルネットに入力する手法
+- Decision Tree
+- Convolutional Neural Network (CNN)
+- Latent Cross
+- Multiplication First
+- MCN
+- Kernel MCN：クエリと文書の積を取る際に線形射影行列を用いることで埋め込みの次元間の相互作用を可能にする。
+<img src="https://user-images.githubusercontent.com/61494140/80078629-26228900-858a-11ea-8bcf-2fda27aba416.png" alt="Kernel MCN" width="40%">
+
+以下に結果を示す。
+
+<img src="https://user-images.githubusercontent.com/61494140/80083037-1d34b600-8590-11ea-9ff3-034e006aa832.png" alt="Result of offline experiment" width="60%">
+
+結果から次のことがわかる。
+- Decision Treeは埋め込みの学習なしではうまく機能しない。これは意味的マッチングの強さを示している。
+- CNNでは良い結果が得られなかった。評価に使ったデータセットにおいて、一般的なテキスト埋め込みによる利点は限定的である。また学習時間が標準の構造よりも大幅に長くなる。
+- Multiplication Firstは良い結果となった。早い段階でのマッチングは単純ながら性能が有意に改善する。逆に連結の方法は学習に非効率なことがわかる。
+- Latent Crossは改善が見られなかった。これはクエリを単に潜在的な素性として処理するだけではうまくいかないことを示している。クエリと文書のマッチングを明示的にモデル化する必要がある。
+- MCNとKernel MCNは最もうまく動作している。早い段階でのマッチングと、その出力と側面的情報の相互作用の促進に意味があることを示している。
+- Kernel MCNとMCNは僅かな差に留まった。積を取るだけのマッチングだけで十分に機能することを示している。
+
+#### オンライン実験
+MCNの有効性をさらに確認するために、大規模なオンライン実験を実施する。
+オフライン実験ではGoogle Driveにおいて最も大きな改善が見られたので、オンライン実験でもDriveの検索を行う。
+2019年3月に一部のユーザに対してA/Bテストを実施し、1000万回の検索セッションから結果を収集した。
+
+結果を以下に示す。
+Abandon Rateは、結果をクリックせずに検索セッションを放棄したユーザの割合である。
+Long Click per Sessionは、クリックした文書に5秒以上滞在した数である。
+Time to Clickは、ユーザが検索セッションを開始してから最初のクリックまでにかかった時間である。
+
+<img src="https://user-images.githubusercontent.com/61494140/80085994-01331380-8594-11ea-8435-e3994a8eab0c.png" alt="Result of online experiment" width="60%">
+
+今の本番環境と比較して、CTRが1.9%、ACPが1.57%改善した。
+また他の指標においても良い傾向にあることがわかる。
+この結果を受けて、MCNはDrive検索に完全に導入された。
+
+
+
 ### 関連研究
 - An Introduction to Neural Information Retrieval (https://www.microsoft.com/en-us/research/publication/introduction-neural-information-retrieval)
 - Alex Beutel, Paul Covington, Sagar Jain, Can Xu, Jia Li, Vince Gatto, and Ed H. Chi. Latent Cross: Making Use of Context in Recurrent Recommender Systems. In Proceedings of the Eleventh ACM International Conference on Web Search and Data Mining (WSDM ’18), pp. 46-54,  2018.

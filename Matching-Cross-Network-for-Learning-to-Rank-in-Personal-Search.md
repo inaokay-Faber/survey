@@ -40,7 +40,7 @@ w_latentは潜在的な素性、h_outは最終の隠れ層の出力を指す。
 
 #### 結果
 以下が3つの手法を比較した結果である。
-結果から、単純な連結とLatent Crossはどちらもコサイン類似度の学習効率が悪いことがわかる。
+結果から、単純な連結とLatent Crossはどちらも学習効率が悪いことがわかる。
 
 <img src="https://user-images.githubusercontent.com/61494140/79729429-6be11680-832a-11ea-8d9d-e6d879ba8ca5.png" alt="result of sub-experiment" width="60%">
 
@@ -55,12 +55,33 @@ Latent Crossを直接適用できないことについて著者らは、f_1とf_
 
 事前の実験によって得られた知見から、クエリと文書を早い段階でマッチングさせる。
 マッチングの手法には、事前の実験と同じくアダマール積を用いる。
+もちろんそれ以外のより複雑で意味を捉えたマッチング手法を使うといったこともできる。
+アダマール積は単純に積を取るだけなので実装が簡単で、学習や推論時に追加でかかる時間やメモリが最小限に抑えられるというメリットがある。
 
 #### Matching Cross Network (MCN)
 MCNの構造を以下に示す。
 
 <img src="https://user-images.githubusercontent.com/61494140/79733549-46570b80-8330-11ea-945d-9ed0868120a3.png" alt="MCN architecture" width="60%">
 
+### 実験設定
+#### データ
+データにはGoogle Gmail, DriveのClick-throughデータを用いる。期間は2018年8月から12月で、クリック数が数億のクエリ。
+Gmailクエリは平均して6個、Driveクエリは5個の候補文書がある。
+
+80%を訓練データ、10%を検証データ、10%をテストデータとして用いる。
+これらはrandom splitではなく、時系列的に古い方から訓練データ→検証データ→テストデータとなるように分割をしている。
+
+またクエリと文書は、複数のユーザにまたがって高頻度に使用される単語と文字n-gramのみを使用する。
+これはユーザのプライバシーを保護する目的で行なっている。
+
+データに含まれる側面的情報は例えば以下のようなものがある。
+- 時間帯などの状況的なもの
+- ユーザの以前のクリックなどユーザに関するもの
+- ドキュメントの古さなどの非テキストな文書属性
+
+データはPosition Bias（より上に位置するものがクリックされやすい）を含むので、以下の研究で提案されている補正手法を用いて緩和させる。  
+Xuanhui Wang, Michael Bendersky, Donald Metzler, and Marc Najork. Learning to rank with selection bias in personal search. In ACM Conference on Research and Development in Information Retrieval (SIGIR), pp. 115–124, 2016.
+
 ### 関連研究
 - An Introduction to Neural Information Retrieval (https://www.microsoft.com/en-us/research/publication/introduction-neural-information-retrieval)
-- Alex Beutel, Paul Covington, Sagar Jain, Can Xu, Jia Li, Vince Gatto, and Ed H. Chi. Latent Cross: Making Use of Context in Recurrent Recommender Systems. In Proceedings of the Eleventh ACM International Conference on Web Search and Data Mining (WSDM ’18), 2018.
+- Alex Beutel, Paul Covington, Sagar Jain, Can Xu, Jia Li, Vince Gatto, and Ed H. Chi. Latent Cross: Making Use of Context in Recurrent Recommender Systems. In Proceedings of the Eleventh ACM International Conference on Web Search and Data Mining (WSDM ’18), pp. 46-54,  2018.

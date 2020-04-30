@@ -97,7 +97,7 @@ Xuanhui Wang, Michael Bendersky, Donald Metzler, and Marc Najork. Learning to ra
 - Latent Cross
 - Multiplication First
 - MCN
-- Kernel MCN：クエリと文書の積を取る際に線形射影行列を用いることで埋め込みの次元間の相互作用を可能にする。
+- Kernel MCN：クエリと文書の積を取る際に線形射影行列を用いることで埋め込みの次元間の相互作用を可能にする。数式で表すと以下のようになる。
 <img src="https://user-images.githubusercontent.com/61494140/80078629-26228900-858a-11ea-8bcf-2fda27aba416.png" alt="Kernel MCN" width="40%">
 
 以下に結果を示す。
